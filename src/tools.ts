@@ -499,59 +499,6 @@ ${countryData.maps?.googleMaps ? `\n🗺️ Maps: ${countryData.maps.googleMaps}
   }
 });
 
-// Tool: Generate charts using QuickChart
-const generateChart = tool({
-  description: "Generate a chart image (bar, line, pie, etc.) from data using QuickChart API",
-  inputSchema: z.object({
-    type: z.enum(["bar", "line", "pie", "doughnut", "radar", "polarArea"]).describe("Type of chart to generate"),
-    labels: z.array(z.string()).describe("Labels for the data points"),
-    data: z.array(z.number()).describe("Data values corresponding to the labels"),
-    title: z.string().optional().describe("Chart title")
-  }),
-  execute: ({ type, labels, data, title }) => {
-    console.log('🎨 generateChart called with:', { type, labels, data, title });
-    
-    try {
-      // Build simplified Chart.js configuration
-      const chartConfig = {
-        type: type,
-        data: {
-          labels: labels,
-          datasets: [{
-            label: title || "Dataset",
-            data: data
-          }]
-        },
-        options: {
-          plugins: {
-            title: {
-              display: !!title,
-              text: title || ''
-            }
-          }
-        }
-      };
-      
-      const encodedConfig = encodeURIComponent(JSON.stringify(chartConfig));
-      const chartUrl = `https://quickchart.io/chart?c=${encodedConfig}&width=600&height=400`;
-      
-      console.log('📊 Chart URL generated:', chartUrl);
-      
-      const result = `📊 **${title || 'Chart'} Generated**
-
-![${title || 'Chart'}](${chartUrl})
-
-**Type:** ${type.charAt(0).toUpperCase() + type.slice(1)} | **Labels:** ${labels.join(", ")} | **Data:** ${data.join(", ")}`;
-      
-      console.log('✅ Chart result generated successfully');
-      return result;
-    } catch (error) {
-      console.error('❌ Chart generation error:', error);
-      return `❌ Sorry, I couldn't generate the chart. Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-    }
-  }
-});
-
 export const tools = {
   getWeatherInformation,
   getLocalTime,
@@ -559,8 +506,7 @@ export const tools = {
   generateColorPalette,
   getNasaAPOD,
   getStockData,
-  getCountryInfo,
-  generateChart
+  getCountryInfo
 } satisfies ToolSet;
 
 // No executions needed - all tools have execute functions now

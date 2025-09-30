@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ToolUIPart } from "ai";
-import { Robot, CaretDown } from "@phosphor-icons/react";
+import { Robot, CaretDown, Copy, Check } from "@phosphor-icons/react";
 import { Button } from "@/components/button/Button";
 import { Card } from "@/components/card/Card";
 import { APPROVAL } from "@/shared";
@@ -43,6 +43,17 @@ export function ToolInvocationCard({
   // addToolResult
 }: ToolInvocationCardProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore clipboard failures
+    }
+  };
 
   return (
     <Card className="p-4 my-3 w-full max-w-[700px] rounded-md bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
@@ -105,9 +116,38 @@ export function ToolInvocationCard({
 
           {!needsConfirmation && toolUIPart.state === "output-available" && (
             <div className="mt-3 border-t border-[#F48120]/10 pt-3">
-              <h5 className="text-xs font-medium mb-1 text-muted-foreground">
-                Result:
-              </h5>
+              <div className="flex items-center justify-between mb-1">
+                <h5 className="text-xs font-medium text-muted-foreground">
+                  Result:
+                </h5>
+                <button
+                  onClick={() => {
+                    const result = toolUIPart.output;
+                    let content: string;
+                    
+                    if (isToolResultWithContent(result)) {
+                      content = result.content
+                        .map((item: { type: string; text: string }) => item.text)
+                        .join("\n");
+                    } else if (typeof result === "string") {
+                      content = result;
+                    } else {
+                      content = JSON.stringify(result, null, 2);
+                    }
+                    
+                    copyToClipboard(content);
+                  }}
+                  className="p-1.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
+                  aria-label={copied ? "Copied!" : "Copy result"}
+                  title={copied ? "Copied!" : "Copy result"}
+                >
+                  {copied ? (
+                    <Check size={14} className="text-green-600 dark:text-green-400" />
+                  ) : (
+                    <Copy size={14} className="text-neutral-600 dark:text-neutral-400" />
+                  )}
+                </button>
+              </div>
               <div className="bg-background/80 p-2 rounded-md text-xs overflow-auto max-w-[650px]">
                 {(() => {
                   const result = toolUIPart.output;

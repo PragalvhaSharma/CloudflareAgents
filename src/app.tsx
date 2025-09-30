@@ -40,9 +40,17 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [isNearBottom, setIsNearBottom] = useState(true);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  const checkIfNearBottom = useCallback(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return true;
+    const threshold = 150; // pixels from bottom
+    return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
   }, []);
 
   useEffect(() => {
@@ -63,6 +71,7 @@ export default function Chat() {
     const onScroll = () => {
       const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 64;
       setShowScrollToBottom(!nearBottom);
+      setIsNearBottom(nearBottom);
     };
     el.addEventListener("scroll", onScroll, { passive: true } as AddEventListenerOptions);
     return () => el.removeEventListener("scroll", onScroll as EventListener);
@@ -144,10 +153,13 @@ export default function Chat() {
     }
   };
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change, but ONLY if user is already near bottom
+  // This allows scrolling up during generation
   useEffect(() => {
-    agentMessages.length > 0 && scrollToBottom();
-  }, [agentMessages, scrollToBottom]);
+    if (agentMessages.length > 0 && isNearBottom) {
+      scrollToBottom();
+    }
+  }, [agentMessages, scrollToBottom, isNearBottom]);
 
   const pendingToolCallConfirmation = agentMessages.some((m: UIMessage) =>
     m.parts?.some(
@@ -443,27 +455,6 @@ export default function Chat() {
                                       : ""
                                   } relative shadow-sm`}
                                 >
-                                  {!isUser && (
-                                    <div className="absolute top-1 right-1 flex gap-1 opacity-70 hover:opacity-100 transition">
-                                      <button
-                                        className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-800"
-                                        onClick={() => copyToClipboard(part.text.replace(/^scheduled message: /, ""))}
-                                        aria-label="Copy message"
-                                      >
-                                        <Copy size={14} />
-                                      </button>
-                                      {index === agentMessages.length - 1 && (
-                                        <button
-                                          className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-800"
-                                          onClick={regenerateLast}
-                                          aria-label="Regenerate"
-                                          disabled={status === "streaming" || status === "submitted"}
-                                        >
-                                          <ArrowClockwise size={14} />
-                                        </button>
-                                      )}
-                                    </div>
-                                  )}
                                   {part.text.startsWith(
                                     "scheduled message"
                                   ) && (
@@ -479,17 +470,40 @@ export default function Chat() {
                                     )}
                                   />
                                 </Card>
-                                <p
-                                  className={`text-xs text-muted-foreground mt-1 ${
-                                    isUser ? "text-right" : "text-left"
-                                  }`}
-                                >
-                                  {formatTime(
-                                    m.metadata?.createdAt
-                                      ? new Date(m.metadata.createdAt)
-                                      : new Date()
+                                <div className="flex items-center justify-between mt-1">
+                                  <p
+                                    className={`text-xs text-muted-foreground ${
+                                      isUser ? "text-right" : "text-left"
+                                    }`}
+                                  >
+                                    {formatTime(
+                                      m.metadata?.createdAt
+                                        ? new Date(m.metadata.createdAt)
+                                        : new Date()
+                                    )}
+                                  </p>
+                                  {!isUser && (
+                                    <div className="flex gap-1 opacity-60 hover:opacity-100 transition">
+                                      <button
+                                        className="p-1 rounded hover:bg-neutral-800"
+                                        onClick={() => copyToClipboard(part.text.replace(/^scheduled message: /, ""))}
+                                        aria-label="Copy message"
+                                      >
+                                        <Copy size={14} />
+                                      </button>
+                                      {index === agentMessages.length - 1 && (
+                                        <button
+                                          className="p-1 rounded hover:bg-neutral-800"
+                                          onClick={regenerateLast}
+                                          aria-label="Regenerate"
+                                          disabled={status === "streaming" || status === "submitted"}
+                                        >
+                                          <ArrowClockwise size={14} />
+                                        </button>
+                                      )}
+                                    </div>
                                   )}
-                                </p>
+                                </div>
                               </div>
                             );
                           }

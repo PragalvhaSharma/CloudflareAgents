@@ -67,7 +67,7 @@ export class Chat extends AIChatAgent<Env> {
           .reverse()
           .find((m) => m.role === "user")?.parts?.find((p: any) => p.type === "text") as any;
         const lastText = (lastUserText?.text as string) || "";
-        const shouldEnableTools = /\b(weather|time|fact|color|palette|temperature|humidity|nasa|space|astronomy|picture|apod|stock|share|market|price|ticker|country|countries|population|currency|flag|nation|chart|graph|plot|visualize|bar|line|pie|data|about|info|information|tell me)\b/i.test(lastText);
+        const shouldEnableTools = /\b(weather|time|fact|color|palette|temperature|humidity|nasa|space|astronomy|picture|apod|stock|share|market|price|ticker|country|countries|population|currency|flag|nation|about|info|information|tell me)\b/i.test(lastText);
 
         const result = streamText({
           system: `You are a concise, friendly assistant running on Cloudflare Workers.
@@ -87,13 +87,11 @@ Available Tools:
 - NASA APOD: Get NASA's daily astronomy picture with scientific explanations (use for space/astronomy queries)
 - Stock data: Get real-time stock market data for any publicly traded company (use for stock/market queries)
 - Country info: Get detailed information about any country including population, currency, flags, and more (ALWAYS use when asked about a specific country)
-- Chart generator: Create visual charts (bar, line, pie, etc.) from data (ALWAYS use when asked to create/generate a chart)
 
 Examples:
 User: "hey" → Assistant: "Hey! What would you like help with today?"
 User: "what's the weather in Paris?" → Use the weather tool to get current conditions.
 User: "tell me about Japan" → Use the country info tool to get detailed data about Japan.
-User: "create a bar chart with labels A,B,C and values 10,20,30" → Use the chart generator tool.
 User: "show me today's space picture" → Use the NASA APOD tool.
 User: "what's Apple's stock price?" → Use the stock data tool.
 `,
