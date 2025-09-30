@@ -124,17 +124,19 @@ export function ToolInvocationCard({
                   onClick={() => {
                     const result = toolUIPart.output;
                     let content: string;
-                    
+
                     if (isToolResultWithContent(result)) {
                       content = result.content
-                        .map((item: { type: string; text: string }) => item.text)
+                        .map(
+                          (item: { type: string; text: string }) => item.text
+                        )
                         .join("\n");
                     } else if (typeof result === "string") {
                       content = result;
                     } else {
                       content = JSON.stringify(result, null, 2);
                     }
-                    
+
                     copyToClipboard(content);
                   }}
                   className="p-1.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
@@ -142,9 +144,15 @@ export function ToolInvocationCard({
                   title={copied ? "Copied!" : "Copy result"}
                 >
                   {copied ? (
-                    <Check size={14} className="text-green-600 dark:text-green-400" />
+                    <Check
+                      size={14}
+                      className="text-green-600 dark:text-green-400"
+                    />
                   ) : (
-                    <Copy size={14} className="text-neutral-600 dark:text-neutral-400" />
+                    <Copy
+                      size={14}
+                      className="text-neutral-600 dark:text-neutral-400"
+                    />
                   )}
                 </button>
               </div>
@@ -152,7 +160,7 @@ export function ToolInvocationCard({
                 {(() => {
                   const result = toolUIPart.output;
                   let content: string;
-                  
+
                   if (isToolResultWithContent(result)) {
                     content = result.content
                       .map((item: { type: string; text: string }) => {
@@ -175,8 +183,13 @@ export function ToolInvocationCard({
                   } else {
                     content = `\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
                   }
-                  
-                  return <MemoizedMarkdown id={`tool-result-${toolCallId}`} content={content} />;
+
+                  return (
+                    <MemoizedMarkdown
+                      id={`tool-result-${toolCallId}`}
+                      content={content}
+                    />
+                  );
                 })()}
               </div>
             </div>

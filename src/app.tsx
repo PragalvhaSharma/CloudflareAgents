@@ -75,12 +75,15 @@ export default function Chat() {
     if (!el) return;
     const onScroll = () => {
       // More generous threshold - consider "at bottom" if within 150px
-      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      const distanceFromBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight;
       const nearBottom = distanceFromBottom < 150;
       setShowScrollToBottom(!nearBottom);
       setIsNearBottom(nearBottom);
     };
-    el.addEventListener("scroll", onScroll, { passive: true } as AddEventListenerOptions);
+    el.addEventListener("scroll", onScroll, {
+      passive: true
+    } as AddEventListenerOptions);
     return () => el.removeEventListener("scroll", onScroll as EventListener);
   }, []);
 
@@ -145,7 +148,12 @@ export default function Chat() {
   })();
 
   const regenerateLast = async () => {
-    if (!lastUserMessageText || status === "streaming" || status === "submitted") return;
+    if (
+      !lastUserMessageText ||
+      status === "streaming" ||
+      status === "submitted"
+    )
+      return;
     await sendMessage(
       { role: "user", parts: [{ type: "text", text: lastUserMessageText }] },
       { body: {} }
@@ -217,7 +225,9 @@ export default function Chat() {
             </div>
             <div>
               <div className="text-sm font-semibold">AI Chat Agent</div>
-              <div className="text-[10px] text-neutral-400">Llama 3.3 70B • Online</div>
+              <div className="text-[10px] text-neutral-400">
+                Llama 3.3 70B • Online
+              </div>
             </div>
           </div>
         </div>
@@ -225,14 +235,24 @@ export default function Chat() {
         {/* Center hero */}
         <div className="relative h-[calc(100vh-64px)] w-full flex flex-col items-center justify-center px-6">
           <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-800/60 text-neutral-200 ring-1 ring-white/10">
-            <svg width="22" height="22" viewBox="0 0 24 24" className="opacity-90">
-              <path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v17l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              className="opacity-90"
+            >
+              <path
+                fill="currentColor"
+                d="M20 2H4a2 2 0 0 0-2 2v17l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2"
+              />
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-neutral-100">Welcome to AI Chat</h1>
+          <h1 className="text-2xl font-semibold text-neutral-100">
+            Welcome to AI Chat
+          </h1>
           <p className="mt-2 text-sm text-neutral-400 text-center max-w-xl">
-            Start a conversation with your AI assistant. I can help you with a wide variety of
-            tasks and questions.
+            Start a conversation with your AI assistant. I can help you with a
+            wide variety of tasks and questions.
           </p>
 
           {/* Category chips */}
@@ -304,7 +324,8 @@ export default function Chat() {
 
           {/* Footer */}
           <div className="mt-10 text-[11px] text-neutral-600">
-            Powered by advanced AI • Built with Cloudflare Workers and Tailwind CSS
+            Powered by advanced AI • Built with Cloudflare Workers and Tailwind
+            CSS
           </div>
         </div>
       </div>
@@ -337,13 +358,21 @@ export default function Chat() {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="font-semibold text-base truncate">AI Chat Agent</h2>
+              <h2 className="font-semibold text-base truncate">
+                AI Chat Agent
+              </h2>
               <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
                 Llama 3.3 70B
               </span>
-              <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${status === "streaming" || status === "submitted" ? "bg-blue-200 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" : "bg-emerald-200 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${status === "streaming" || status === "submitted" ? "bg-blue-600 animate-pulse" : "bg-emerald-600"}`} />
-                {status === "streaming" || status === "submitted" ? "Generating" : "Idle"}
+              <span
+                className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${status === "streaming" || status === "submitted" ? "bg-blue-200 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" : "bg-emerald-200 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"}`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${status === "streaming" || status === "submitted" ? "bg-blue-600 animate-pulse" : "bg-emerald-600"}`}
+                />
+                {status === "streaming" || status === "submitted"
+                  ? "Generating"
+                  : "Idle"}
               </span>
             </div>
           </div>
@@ -369,7 +398,10 @@ export default function Chat() {
         </div>
 
         {/* Messages */}
-        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 pb-24 max-h-[calc(100vh-10rem)]">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-4 pb-24 max-h-[calc(100vh-10rem)]"
+        >
           {agentMessages.length === 0 && (
             <div className="h-full flex items-center justify-center">
               <Card className="p-6 max-w-md mx-auto bg-neutral-100 dark:bg-neutral-900">
@@ -379,7 +411,8 @@ export default function Chat() {
                   </div>
                   <h3 className="font-semibold text-lg">Welcome to AI Chat</h3>
                   <p className="text-muted-foreground text-sm">
-                    Start a conversation with your AI assistant. I can help with:
+                    Start a conversation with your AI assistant. I can help
+                    with:
                   </p>
                   <ul className="text-sm text-left space-y-2">
                     <li className="flex items-center gap-2">
@@ -400,7 +433,12 @@ export default function Chat() {
                     </li>
                   </ul>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {["What's the weather in Paris?","Tell me a fun fact","Generate a color palette","What time is it in Tokyo?"].map((s) => (
+                    {[
+                      "What's the weather in Paris?",
+                      "Tell me a fun fact",
+                      "Generate a color palette",
+                      "What time is it in Tokyo?"
+                    ].map((s) => (
                       <button
                         key={s}
                         onClick={(e) => {
@@ -493,7 +531,14 @@ export default function Chat() {
                                     <div className="flex gap-1 opacity-60 hover:opacity-100 transition">
                                       <button
                                         className="p-1 rounded hover:bg-neutral-800"
-                                        onClick={() => copyToClipboard(part.text.replace(/^scheduled message: /, ""))}
+                                        onClick={() =>
+                                          copyToClipboard(
+                                            part.text.replace(
+                                              /^scheduled message: /,
+                                              ""
+                                            )
+                                          )
+                                        }
                                         aria-label="Copy message"
                                       >
                                         <Copy size={14} />
@@ -503,7 +548,10 @@ export default function Chat() {
                                           className="p-1 rounded hover:bg-neutral-800"
                                           onClick={regenerateLast}
                                           aria-label="Regenerate"
-                                          disabled={status === "streaming" || status === "submitted"}
+                                          disabled={
+                                            status === "streaming" ||
+                                            status === "submitted"
+                                          }
                                         >
                                           <ArrowClockwise size={14} />
                                         </button>

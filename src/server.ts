@@ -65,9 +65,13 @@ export class Chat extends AIChatAgent<Env> {
         // Heuristic: only enable on clear tool-intent keywords to avoid unnecessary tool calls.
         const lastUserText = [...processedMessages]
           .reverse()
-          .find((m) => m.role === "user")?.parts?.find((p: any) => p.type === "text") as any;
+          .find((m) => m.role === "user")
+          ?.parts?.find((p: any) => p.type === "text") as any;
         const lastText = (lastUserText?.text as string) || "";
-        const shouldEnableTools = /\b(weather|time|fact|color|palette|temperature|humidity|nasa|space|astronomy|picture|apod|stock|share|market|price|ticker|country|countries|population|currency|flag|nation|about|info|information|tell me)\b/i.test(lastText);
+        const shouldEnableTools =
+          /\b(weather|time|fact|color|palette|temperature|humidity|nasa|space|astronomy|picture|apod|stock|share|market|price|ticker|country|countries|population|currency|flag|nation|about|info|information|tell me)\b/i.test(
+            lastText
+          );
 
         const result = streamText({
           system: `You are a concise, friendly assistant running on Cloudflare Workers.
@@ -132,21 +136,24 @@ export default {
 
     // Workers AI streaming endpoint (SSE)
     if (url.pathname === "/workers-ai/stream") {
-      const stream = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
-        stream: true,
-        max_tokens: 512,
-        messages: [
-          { role: "user", content: "wer\n" },
-          {
-            role: "assistant",
-            content:
-              "It seems like you started to type something, but it got cut off. Could you please complete your question or statement? I'm here to help with whatever you need.",
-          },
-        ],
-      });
+      const stream = await env.AI.run(
+        "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        {
+          stream: true,
+          max_tokens: 512,
+          messages: [
+            { role: "user", content: "wer\n" },
+            {
+              role: "assistant",
+              content:
+                "It seems like you started to type something, but it got cut off. Could you please complete your question or statement? I'm here to help with whatever you need."
+            }
+          ]
+        }
+      );
 
       return new Response(stream as ReadableStream, {
-        headers: { "content-type": "text/event-stream" },
+        headers: { "content-type": "text/event-stream" }
       });
     }
 
