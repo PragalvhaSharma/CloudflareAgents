@@ -39,9 +39,8 @@ Drop screenshots for each tool under `public/tools/` (or adjust the paths here) 
 
 ### Weather Lookup (`getWeatherInformation`)
 
-Upload screenshot to `public/tools/weather.png`.
+<img width="908" height="454" alt="Screenshot 2025-09-29 at 10 54 47 PM" src="https://github.com/user-attachments/assets/4c566f4b-1b2f-4d1e-99d4-5d501cccc33b" />
 
-![Weather lookup screenshot](public/tools/weather.png)
 
 ### Local Time Finder (`getLocalTime`)
 
