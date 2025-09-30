@@ -287,67 +287,149 @@ ${data.copyright ? `📷 Copyright: ${data.copyright}` : ''}`;
 
 // Tool: Get stock market data
 const getStockData = tool({
-  description: "Get real-time stock market data for any publicly traded company",
+  description: "Get real-time stock market data for any publicly traded company using Yahoo Finance API",
   inputSchema: z.object({
     symbol: z.string().describe("Stock ticker symbol (e.g., AAPL, GOOGL, MSFT)"),
     interval: z.enum(["1min", "5min", "15min", "30min", "1h", "1day", "1week", "1month"]).optional().describe("Time interval for data points")
   }),
   execute: async ({ symbol, interval = "1day" }) => {
     try {
-      const response = await fetch(
-        `https://api.twelvedata.com/time_series?symbol=${symbol.toUpperCase()}&interval=${interval}&outputsize=5&apikey=demo`
-      );
+      // Using Yahoo Finance API v8 - free and reliable
+      const upperSymbol = symbol.toUpperCase();
       
-      if (!response.ok) throw new Error("Stock API failed");
-      
-      const data = await response.json() as {
-        meta?: {
-          symbol: string;
-          interval: string;
-          currency?: string;
-          exchange?: string;
-          type?: string;
-        };
-        values?: Array<{
-          datetime: string;
-          open: string;
-          high: string;
-          low: string;
-          close: string;
-          volume?: string;
-        }>;
-        status?: string;
-        message?: string;
+      // Map interval to Yahoo Finance format
+      const intervalMap: Record<string, string> = {
+        "1min": "1m",
+        "5min": "5m",
+        "15min": "15m",
+        "30min": "30m",
+        "1h": "60m",
+        "1day": "1d",
+        "1week": "1wk",
+        "1month": "1mo"
       };
       
-      if (data.status === "error" || !data.values || data.values.length === 0) {
+      const yahooInterval = intervalMap[interval] || "1d";
+      
+      // Calculate time range (last 7 days for better data availability)
+      const now = Math.floor(Date.now() / 1000);
+      const period1 = now - (7 * 24 * 60 * 60); // 7 days ago
+      
+      // Fetch stock data from Yahoo Finance
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${upperSymbol}?period1=${period1}&period2=${now}&interval=${yahooInterval}&includePrePost=true&events=div%7Csplit%7Cearn`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error("Yahoo Finance API request failed");
+      }
+      
+      const data = await response.json() as {
+        chart?: {
+          result?: Array<{
+            meta?: {
+              currency?: string;
+              symbol?: string;
+              exchangeName?: string;
+              fullExchangeName?: string;
+              instrumentType?: string;
+              regularMarketPrice?: number;
+              regularMarketDayHigh?: number;
+              regularMarketDayLow?: number;
+              regularMarketVolume?: number;
+              longName?: string;
+              shortName?: string;
+              previousClose?: number;
+              fiftyTwoWeekHigh?: number;
+              fiftyTwoWeekLow?: number;
+            };
+            timestamp?: number[];
+            indicators?: {
+              quote?: Array<{
+                open?: number[];
+                high?: number[];
+                low?: number[];
+                close?: number[];
+                volume?: number[];
+              }>;
+            };
+          }>;
+          error?: {
+            code: string;
+            description: string;
+          };
+        };
+      };
+      
+      // Check for errors
+      if (data.chart?.error || !data.chart?.result || data.chart.result.length === 0) {
         return `❌ Unable to fetch data for symbol "${symbol}". Please check the ticker symbol and try again.`;
       }
       
-      const latest = data.values[0];
-      const previous = data.values[1];
-      const change = previous ? (parseFloat(latest.close) - parseFloat(previous.close)).toFixed(2) : "N/A";
-      const changePercent = previous ? (((parseFloat(latest.close) - parseFloat(previous.close)) / parseFloat(previous.close)) * 100).toFixed(2) : "N/A";
+      const result = data.chart.result[0];
+      const meta = result.meta;
+      const timestamps = result.timestamp || [];
+      const quotes = result.indicators?.quote?.[0];
       
-      const changeEmoji = change === "N/A" ? "➖" : parseFloat(change) >= 0 ? "📈" : "📉";
+      if (!meta || timestamps.length === 0 || !quotes) {
+        return `❌ No data available for symbol "${symbol}".`;
+      }
       
-      return `💹 **Stock Data: ${data.meta?.symbol || symbol}**
-${data.meta?.exchange ? `🏦 Exchange: ${data.meta.exchange}` : ''}
-${data.meta?.currency ? `💵 Currency: ${data.meta.currency}` : ''}
+      // Get the LAST timestamp (most recent data)
+      const lastIndex = timestamps.length - 1;
+      const lastTimestamp = timestamps[lastIndex];
+      const lastDate = new Date(lastTimestamp * 1000);
+      
+      // Get data from the last timestamp
+      const lastClose = quotes.close?.[lastIndex];
+      const lastOpen = quotes.open?.[lastIndex];
+      const lastHigh = quotes.high?.[lastIndex];
+      const lastLow = quotes.low?.[lastIndex];
+      const lastVolume = quotes.volume?.[lastIndex];
+      
+      // Use regular market price from meta as the most current price
+      const currentPrice = meta.regularMarketPrice || lastClose || 0;
+      const previousClose = meta.previousClose || 0;
+      
+      // Calculate change
+      const change = currentPrice - previousClose;
+      const changePercent = previousClose > 0 ? ((change / previousClose) * 100) : 0;
+      
+      const changeEmoji = change >= 0 ? "📈" : "📉";
+      
+      // Format date and time
+      const dateStr = lastDate.toISOString().split('T')[0];
+      const timeStr = lastDate.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: 'America/New_York'
+      });
+      
+      return `💹 **Stock Data: ${meta.symbol || upperSymbol}**
+${meta.longName ? `🏢 Company: ${meta.longName}` : ''}
+🏦 Exchange: ${meta.fullExchangeName || meta.exchangeName || 'N/A'}
+💵 Currency: ${meta.currency || 'USD'}
+📊 Type: ${meta.instrumentType || 'EQUITY'}
 
-📊 **Latest (${latest.datetime})**
-- Open: $${latest.open}
-- High: $${latest.high}
-- Low: $${latest.low}
-- Close: $${latest.close}
-${latest.volume ? `- Volume: ${latest.volume}` : ''}
+📊 **Latest (${dateStr} ${timeStr} ET)**
+- Current Price: $${currentPrice.toFixed(2)}
+- Open: $${(lastOpen || 0).toFixed(2)}
+- High: $${(lastHigh || meta.regularMarketDayHigh || 0).toFixed(2)}
+- Low: $${(lastLow || meta.regularMarketDayLow || 0).toFixed(2)}
+- Previous Close: $${previousClose.toFixed(2)}
+${lastVolume ? `- Volume: ${lastVolume.toLocaleString()}` : ''}
 
-${changeEmoji} **Change:** ${change !== "N/A" ? `$${change} (${changePercent}%)` : 'N/A'}
+${changeEmoji} **Change:** $${change.toFixed(2)} (${changePercent.toFixed(2)}%)
 
-📉 **Recent History (${interval} intervals):**
-${data.values.slice(0, 5).map(v => `- ${v.datetime}: $${v.close}`).join('\n')}`;
+📈 **52-Week Range:** $${(meta.fiftyTwoWeekLow || 0).toFixed(2)} - $${(meta.fiftyTwoWeekHigh || 0).toFixed(2)}
+
+✨ **Data Source:** Yahoo Finance API (Real-time)`;
     } catch (error) {
-      return `❌ Sorry, I couldn't fetch stock data for ${symbol}. Please verify the ticker symbol and try again.`;
+      return `❌ Sorry, I couldn't fetch stock data for ${symbol}. Please verify the ticker symbol and try again. Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
   }
 });

@@ -2,7 +2,7 @@
 
 /* Markdown Styling (Tailwind @apply) */
 .markdown-body {
-  @apply break-words overflow-wrap-anywhere;
+  @apply break-words;
 }
 
 .markdown-body img {
