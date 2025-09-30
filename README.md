@@ -6,6 +6,17 @@ This project is a bespoke chat experience built entirely on Cloudflare's AI plat
 
 - Explore the hosted build at [agents-starter.pragalvhasharma.workers.dev](https://agents-starter.pragalvhasharma.workers.dev).
 
+## Quick Start
+
+```bash
+npm install
+npm start            # launches the Vite dev server + Workers preview
+# or: wrangler dev   # run the Worker / Durable Object without the UI
+# deploy: npm run deploy
+```
+
+If you are setting the project up for the first time, make sure you have authenticated the Wrangler CLI (`wrangler login`) so local dev proxies to your Cloudflare account bindings.
+
 ## How the Project Works
 
 - Incoming chat requests are routed to the `Chat` Durable Object in `src/server.ts`, which subclasses Cloudflare's `AIChatAgent` helper from the `agents` SDK.
