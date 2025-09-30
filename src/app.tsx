@@ -69,7 +69,9 @@ export default function Chat() {
     const el = messagesContainerRef.current;
     if (!el) return;
     const onScroll = () => {
-      const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 64;
+      // More generous threshold - consider "at bottom" if within 150px
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      const nearBottom = distanceFromBottom < 150;
       setShowScrollToBottom(!nearBottom);
       setIsNearBottom(nearBottom);
     };

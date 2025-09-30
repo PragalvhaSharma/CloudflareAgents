@@ -184,56 +184,6 @@ ${data.source ? `\n📚 Source: ${data.source}` : ''}`;
   }
 });
 
-// Tool: Generate color palettes
-const generateColorPalette = tool({
-  description: "Generate a beautiful color palette for design projects",
-  inputSchema: z.object({
-    mood: z.enum(["warm", "cool", "pastel", "vibrant", "monochrome", "random"]).optional().describe("The mood/style of the color palette")
-  }),
-  execute: async ({ mood = "random" }) => {
-    try {
-      // Using the Colormind API for color palettes
-      const model = mood === "random" ? "default" : "default";
-      const response = await fetch("http://colormind.io/api/", {
-        method: "POST",
-        body: JSON.stringify({ model })
-      });
-      
-      if (!response.ok) throw new Error("Color API failed");
-      
-      const data = await response.json() as { result: number[][] };
-      const colors = data.result.map(rgb => {
-        const hex = '#' + rgb.map(x => x.toString(16).padStart(2, '0')).join('');
-        return hex;
-      });
-      
-      return `🎨 **Generated Color Palette** (${mood} style):
-
-${colors.map((color, i) => `${i + 1}. ${color} ████`).join('\n')}
-
-Perfect for your next design project! 🖌️`;
-    } catch (error) {
-      // Fallback color palettes
-      const palettes = {
-        warm: ['#FF6B6B', '#FFA07A', '#FFD93D', '#F4A460', '#FF8C42'],
-        cool: ['#6C5CE7', '#74B9FF', '#00B894', '#00CEC9', '#A29BFE'],
-        pastel: ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF'],
-        vibrant: ['#E94B3C', '#6F4C9B', '#00A8E8', '#00FF87', '#FFB400'],
-        monochrome: ['#0A0A0A', '#404040', '#757575', '#BFBFBF', '#F0F0F0'],
-        random: ['#FF6B9D', '#C44569', '#FFC048', '#3F72AF', '#112D4E']
-      };
-      
-      const selectedPalette = palettes[mood as keyof typeof palettes] || palettes.random;
-      
-      return `🎨 **Generated Color Palette** (${mood} style):
-
-${selectedPalette.map((color, i) => `${i + 1}. ${color} ████`).join('\n')}
-
-Perfect for your next design project! 🖌️`;
-    }
-  }
-});
-
 // Tool: Get NASA Astronomy Picture of the Day
 const getNasaAPOD = tool({
   description: "Get NASA's Astronomy Picture of the Day - a daily space photo with scientific explanation",
@@ -503,7 +453,6 @@ export const tools = {
   getWeatherInformation,
   getLocalTime,
   getRandomFact,
-  generateColorPalette,
   getNasaAPOD,
   getStockData,
   getCountryInfo
