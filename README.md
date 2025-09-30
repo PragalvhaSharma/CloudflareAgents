@@ -50,9 +50,6 @@ Drop screenshots for each tool under `public/tools/` (or adjust the paths here) 
 
 <img width="691" height="400" alt="Screenshot 2025-09-29 at 10 56 28 PM" src="https://github.com/user-attachments/assets/b2b06d33-c6b2-4e2d-a445-52802da002bb" />
 
-
-![Random fact generator screenshot](public/tools/fact.png)
-
 ### NASA Astronomy Picture (`getNasaAPOD`)
 
 <img width="488" height="499" alt="Screenshot 2025-09-29 at 10 57 01 PM" src="https://github.com/user-attachments/assets/c96f6f2e-7337-47eb-b329-ada1e385cd8e" />
