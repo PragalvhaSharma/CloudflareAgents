@@ -44,33 +44,27 @@ Drop screenshots for each tool under `public/tools/` (or adjust the paths here) 
 
 ### Local Time Finder (`getLocalTime`)
 
-Upload screenshot to `public/tools/time.png`.
-
-![Local time finder screenshot](public/tools/time.png)
+<img width="564" height="367" alt="Screenshot 2025-09-29 at 10 55 29 PM" src="https://github.com/user-attachments/assets/46b18fec-57d6-40a6-b1ec-bd131814a71f" />
 
 ### Random Fact Generator (`getRandomFact`)
 
-Upload screenshot to `public/tools/fact.png`.
+<img width="691" height="400" alt="Screenshot 2025-09-29 at 10 56 28 PM" src="https://github.com/user-attachments/assets/b2b06d33-c6b2-4e2d-a445-52802da002bb" />
+
 
 ![Random fact generator screenshot](public/tools/fact.png)
 
 ### NASA Astronomy Picture (`getNasaAPOD`)
 
-Upload screenshot to `public/tools/nasa.png`.
-
-![NASA astronomy picture screenshot](public/tools/nasa.png)
+<img width="488" height="499" alt="Screenshot 2025-09-29 at 10 57 01 PM" src="https://github.com/user-attachments/assets/c96f6f2e-7337-47eb-b329-ada1e385cd8e" />
 
 ### Stock Data Overview (`getStockData`)
 
-Upload screenshot to `public/tools/stock.png`.
-
-![Stock data overview screenshot](public/tools/stock.png)
+<img width="422" height="397" alt="Screenshot 2025-09-29 at 10 59 17 PM" src="https://github.com/user-attachments/assets/85ca5d94-c014-4bc3-aaa4-6d885e525532" />
 
 ### Country Insights (`getCountryInfo`)
 
-Upload screenshot to `public/tools/country.png`.
+<img width="420" height="503" alt="Screenshot 2025-09-29 at 10 59 42 PM" src="https://github.com/user-attachments/assets/4afc855a-db6b-42ae-a0c8-3e8efc3bfe2f" />
 
-![Country insights screenshot](public/tools/country.png)
 
 ## Frontend Experience
 
