@@ -2,6 +2,10 @@
 
 This project is a bespoke chat experience built entirely on Cloudflare's AI platform. It combines the Cloudflare Agents runtime, Durable Objects, and Workers AI to deliver a streaming, tool-aware assistant that runs without any server infrastructure of its own. The UI is a Vite + React single-page app that talks directly to a Workers Durable Object which orchestrates the conversation.
 
+## Live Deployment
+
+- Explore the hosted build at [agents-starter.pragalvhasharma.workers.dev](https://agents-starter.pragalvhasharma.workers.dev).
+
 ## How the Project Works
 
 - Incoming chat requests are routed to the `Chat` Durable Object in `src/server.ts`, which subclasses Cloudflare's `AIChatAgent` helper from the `agents` SDK.
@@ -29,7 +33,45 @@ All tools live in `src/tools.ts` and execute automatically when the heuristic al
 - `getStockData` – Yahoo Finance chart API with interval support and formatted change metrics.
 - `getCountryInfo` – REST Countries v3 API for demographics, currencies, languages, and flags.
 
-Adding new tools is as simple as defining another `tool({ inputSchema, execute })` export and (optionally) tweaking the keyword heuristic in `src/server.ts`.
+## Tool Gallery
+
+Drop screenshots for each tool under `public/tools/` (or adjust the paths here) once they are ready.
+
+### Weather Lookup (`getWeatherInformation`)
+
+Upload screenshot to `public/tools/weather.png`.
+
+![Weather lookup screenshot](public/tools/weather.png)
+
+### Local Time Finder (`getLocalTime`)
+
+Upload screenshot to `public/tools/time.png`.
+
+![Local time finder screenshot](public/tools/time.png)
+
+### Random Fact Generator (`getRandomFact`)
+
+Upload screenshot to `public/tools/fact.png`.
+
+![Random fact generator screenshot](public/tools/fact.png)
+
+### NASA Astronomy Picture (`getNasaAPOD`)
+
+Upload screenshot to `public/tools/nasa.png`.
+
+![NASA astronomy picture screenshot](public/tools/nasa.png)
+
+### Stock Data Overview (`getStockData`)
+
+Upload screenshot to `public/tools/stock.png`.
+
+![Stock data overview screenshot](public/tools/stock.png)
+
+### Country Insights (`getCountryInfo`)
+
+Upload screenshot to `public/tools/country.png`.
+
+![Country insights screenshot](public/tools/country.png)
 
 ## Frontend Experience
 
