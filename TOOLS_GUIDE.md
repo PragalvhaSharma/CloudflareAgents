@@ -1,6 +1,6 @@
 # AI Agent Tools Guide
 
-This document describes all available tools in the AI Chat Agent and how to use them.
+This document describes all available tools in the Prag's Chatbot and how to use them.
 
 ## Available Tools
 

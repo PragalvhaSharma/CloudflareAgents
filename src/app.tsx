@@ -226,7 +226,7 @@ export default function Chat() {
               <Robot size={18} />
             </div>
             <div>
-              <div className="text-sm font-semibold">AI Chat Agent</div>
+              <div className="text-sm font-semibold">Prag's Chatbot</div>
               <div className="text-[10px] text-neutral-400">
                 Llama 3.3 70B • Online
               </div>
@@ -371,7 +371,7 @@ export default function Chat() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="font-semibold text-base truncate">
-                AI Chat Agent
+                Prag's Chatbot
               </h2>
               <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
                 Llama 3.3 70B

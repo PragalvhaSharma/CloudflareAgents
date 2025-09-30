@@ -2,7 +2,7 @@
 
 ## Overview
 
-Updated the AI Chat Agent with improved tools, removed hardcoded values, and enhanced the user interface.
+Updated the Prag's Chatbot with improved tools, removed hardcoded values, and enhanced the user interface.
 
 ---
 

@@ -1,4 +1,4 @@
-# Cloudflare Workers AI Chat Agent
+# Cloudflare Workers Prag's Chatbot
 
 This project is a bespoke chat experience built entirely on Cloudflare's AI platform. It combines the Cloudflare Agents runtime, Durable Objects, and Workers AI to deliver a streaming, tool-aware assistant that runs without any server infrastructure of its own. The UI is a Vite + React single-page app that talks directly to a Workers Durable Object which orchestrates the conversation.
 
