@@ -194,21 +194,23 @@ export default function Chat() {
 
   // Landing screen: show when there are no messages yet
   if (agentMessages.length === 0) {
-    const categories = [
-      "🌤️ Weather information for any city worldwide",
-      "🕐 Local time in different locations & timezones",
-      "💡 Random interesting facts about science & nature",
-      "🎨 Beautiful color palettes for design projects",
-      "✍️ Creative writing assistance",
-      "💻 Code explanations and debugging"
-    ];
-    const quickPrompts = [
-      "What's the weather in Tokyo?",
-      "Tell me an interesting fact",
-      "Generate a warm color palette",
-      "What time is it in London?",
+    // General prompts (replaces tool starters section)
+    const generalStarters = [
       "Give me 3 dinner ideas",
-      "Write a short poem about AI"
+      "Write a short poem about AI",
+      "Summarize this paragraph",
+      "Help me debug a JavaScript error",
+      "Brainstorm blog post ideas",
+      "Rewrite this sentence to be more concise"
+    ];
+
+    const toolQuickPrompts = [
+      "What's the weather in Tokyo?",
+      "What time is it in London?",
+      "Tell me an interesting fact",
+      "Show today's NASA picture",
+      "What's AAPL's stock price?",
+      "Tell me about Japan"
     ];
 
     return (
@@ -255,30 +257,40 @@ export default function Chat() {
             wide variety of tasks and questions.
           </p>
 
-          {/* Category chips */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl w-full">
-            {categories.map((c) => (
-              <button
-                key={c}
-                onClick={() => setAgentInput(c)}
-                className="text-xs px-4 py-2 rounded-full border border-neutral-800/80 bg-neutral-900/50 hover:bg-neutral-800/60 text-neutral-300 text-left"
-              >
-                {c}
-              </button>
-            ))}
+          {/* General prompts (replacing Tool starters) */}
+          <div className="mt-6 max-w-4xl w-full">
+            <div className="text-[11px] uppercase tracking-wide text-neutral-500 mb-2 text-center">
+              General prompts
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {generalStarters.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setAgentInput(c)}
+                  className="text-xs px-4 py-2 rounded-full border border-neutral-800/80 bg-neutral-900/50 hover:bg-neutral-800/60 text-neutral-300 text-left"
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Quick prompts */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {quickPrompts.map((q) => (
-              <button
-                key={q}
-                onClick={() => setAgentInput(q)}
-                className="text-[11px] px-3 py-1.5 rounded-full border border-neutral-800/80 bg-neutral-900/60 hover:bg-neutral-800/60 text-neutral-200"
-              >
-                {q}
-              </button>
-            ))}
+          {/* Quick prompts - Tool specific only */}
+          <div className="mt-6 max-w-3xl w-full">
+            <div className="text-[11px] uppercase tracking-wide text-neutral-500 mb-2 text-center">
+              Tool prompts
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {toolQuickPrompts.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => setAgentInput(q)}
+                  className="text-[11px] px-3 py-1.5 rounded-full border border-neutral-800/80 bg-neutral-900/60 hover:bg-neutral-800/60 text-neutral-200"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Input */}

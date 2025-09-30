@@ -68,8 +68,9 @@ export class Chat extends AIChatAgent<Env> {
           .find((m) => m.role === "user")
           ?.parts?.find((p: any) => p.type === "text") as any;
         const lastText = (lastUserText?.text as string) || "";
+        // Restrict tool triggering keywords strictly to the tools we ship
         const shouldEnableTools =
-          /\b(weather|time|fact|color|palette|temperature|humidity|nasa|space|astronomy|picture|apod|stock|share|market|price|ticker|country|countries|population|currency|flag|nation|about|info|information|tell me)\b/i.test(
+          /\b(weather|temperature|humidity|time|timezone|clock|fact|facts|nasa|space|astronomy|picture|apod|stock|stocks|market|price|ticker|quote|country|countries|population|currency|flag|nation|about|info|information)\b/i.test(
             lastText
           );
 
@@ -83,14 +84,13 @@ General behavior:
 - Prefer practical steps, examples, and next actions. Keep responses compact.
 - ALWAYS use tools when users ask for specific data that requires real-time information.
 
-Available Tools:
+Available Tools (only these six):
 - Weather information: Get current weather for any city worldwide
 - Local time: Get current time for any location or timezone
 - Random facts: Get interesting facts about science, history, nature, etc.
-- Color palettes: Generate beautiful color schemes for design projects
-- NASA APOD: Get NASA's daily astronomy picture with scientific explanations (use for space/astronomy queries)
-- Stock data: Get real-time stock market data for any publicly traded company (use for stock/market queries)
-- Country info: Get detailed information about any country including population, currency, flags, and more (ALWAYS use when asked about a specific country)
+- NASA APOD: Get NASA's daily astronomy picture with scientific explanations
+- Stock data: Get real-time stock market data for public companies
+- Country info: Get detailed information about any country (population, currency, flags, etc.)
 
 Examples:
 User: "hey" → Assistant: "Hey! What would you like help with today?"
@@ -98,6 +98,7 @@ User: "what's the weather in Paris?" → Use the weather tool to get current con
 User: "tell me about Japan" → Use the country info tool to get detailed data about Japan.
 User: "show me today's space picture" → Use the NASA APOD tool.
 User: "what's Apple's stock price?" → Use the stock data tool.
+User: "tell me about Japan" → Use the country info tool.
 `,
 
           messages: convertToModelMessages(processedMessages),
