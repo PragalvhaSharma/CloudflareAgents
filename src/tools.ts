@@ -455,15 +455,11 @@ const generateChart = tool({
       
       console.log('📊 Chart URL generated:', chartUrl);
       
-      const result = `📊 **Chart Generated Successfully!**
-
-${title ? `📈 Title: ${title}\n` : ''}🎨 Type: ${type.charAt(0).toUpperCase() + type.slice(1)} Chart
-📝 Labels: ${labels.join(", ")}
-🔢 Data: ${data.join(", ")}
+      const result = `📊 **${title || 'Chart'} Generated**
 
 ![${title || 'Chart'}](${chartUrl})
 
-💡 **Tip:** Right-click and save the image, or [click here](${chartUrl}) to open it in a new tab!`;
+**Type:** ${type.charAt(0).toUpperCase() + type.slice(1)} | **Labels:** ${labels.join(", ")} | **Data:** ${data.join(", ")}`;
       
       console.log('✅ Chart result generated successfully');
       return result;

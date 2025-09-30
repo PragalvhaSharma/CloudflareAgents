@@ -18,9 +18,7 @@ import { ToolInvocationCard } from "@/components/tool-invocation-card/ToolInvoca
 // Icon imports
 import {
   Bug,
-  Moon,
   Robot,
-  Sun,
   Trash,
   PaperPlaneTilt,
   Stop,
@@ -36,11 +34,7 @@ const toolsRequiringConfirmation: (keyof typeof tools)[] = [
 ];
 
 export default function Chat() {
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    // Check localStorage first, default to dark if not found
-    const savedTheme = localStorage.getItem("theme");
-    return (savedTheme as "dark" | "light") || "dark";
-  });
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [showDebug, setShowDebug] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState("auto");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,18 +46,10 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    // Apply theme class on mount and when theme changes
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-    }
-
-    // Save theme preference to localStorage
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+    // Always apply dark theme
+    document.documentElement.classList.add("dark");
+    document.documentElement.classList.remove("light");
+  }, []);
 
   // Scroll to bottom on mount
   useEffect(() => {
@@ -82,10 +68,7 @@ export default function Chat() {
     return () => el.removeEventListener("scroll", onScroll as EventListener);
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-  };
+  // Theme locked to dark mode
 
   const agent = useAgent({
     agent: "chat"
@@ -217,17 +200,6 @@ export default function Chat() {
               <div className="text-sm font-semibold">AI Chat Agent</div>
               <div className="text-[10px] text-neutral-400">Llama 3.3 70B • Online</div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="md"
-              shape="square"
-              className="rounded-full h-9 w-9"
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </Button>
           </div>
         </div>
 
@@ -365,16 +337,6 @@ export default function Chat() {
               onClick={() => setShowDebug((prev) => !prev)}
             />
           </div>
-
-          <Button
-            variant="ghost"
-            size="md"
-            shape="square"
-            className="rounded-full h-9 w-9"
-            onClick={toggleTheme}
-          >
-            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-          </Button>
 
           <Button
             variant="ghost"

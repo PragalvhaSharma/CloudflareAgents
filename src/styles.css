@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
-/* Markdown Table Styling (Tailwind @apply) */
+/* Markdown Styling (Tailwind @apply) */
+.markdown-body {
+  @apply break-words overflow-wrap-anywhere;
+}
+
+.markdown-body img {
+  @apply max-w-full h-auto rounded-lg;
+}
+
 .markdown-body table {
   @apply w-full border-collapse my-4 text-[0.95em];
 }
