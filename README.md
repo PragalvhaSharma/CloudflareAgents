@@ -1,238 +1,82 @@
-# 🤖 Chat Agent Starter Kit
+# Cloudflare Workers AI Chat Agent
 
-![npm i agents command](./npm-agents-banner.svg)
+This project is a bespoke chat experience built entirely on Cloudflare's AI platform. It combines the Cloudflare Agents runtime, Durable Objects, and Workers AI to deliver a streaming, tool-aware assistant that runs without any server infrastructure of its own. The UI is a Vite + React single-page app that talks directly to a Workers Durable Object which orchestrates the conversation.
 
-<a href="https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/agents-starter"><img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare"/></a>
+## How the Project Works
+- Incoming chat requests are routed to the `Chat` Durable Object in `src/server.ts`, which subclasses Cloudflare's `AIChatAgent` helper from the `agents` SDK.
+- Each turn merges the built-in tool definitions from `src/tools.ts` with any MCP tools that might be connected, then cleans up partial tool calls and replays any pending confirmations via `processToolCalls`.
+- The agent calls `streamText` against Cloudflare Workers AI using the `AI` binding configured in `wrangler.jsonc`, targeting the `@cf/meta/llama-3.3-70b-instruct-fp8-fast` model. Responses stream back to the browser as they are generated.
+- A lightweight heuristic checks the latest user message for tool-intent keywords before enabling tool execution, so the model only reaches for APIs when the user is clearly asking for fresh data.
+- The React client (`src/app.tsx`) renders message history, tool input/output cards, and a landing screen with quick prompts. It keeps the experience locked to dark mode, adds copy/regenerate controls, and exposes an optional debug view.
 
-A starter template for building AI-powered chat agents using Cloudflare's Agent platform, powered by [`agents`](https://www.npmjs.com/package/agents). This project provides a foundation for creating interactive chat experiences with AI, complete with a modern UI and tool integration capabilities.
+## Cloudflare Platform Pieces in Use
+- **Workers AI** (`AI` binding) hosts the Llama 3.3 70B instruct model used for all completions.
+- **Cloudflare Agents runtime** provides the `AIChatAgent` base class, agent routing, and MCP integrations.
+- **Durable Objects** persist conversation state for each session via the `Chat` class.
+- **Wrangler + the Cloudflare Vite plugin** power local development, asset bundling, and deployment from the CLI.
+- **Workers Observability** is enabled (sampling rate 1) through `wrangler.jsonc` so requests show up in Cloudflare's dashboards.
 
-## Features
+## Built-In Toolbelt
+All tools live in `src/tools.ts` and execute automatically when the heuristic allows:
+- `getWeatherInformation` – Open-Meteo geocoding + forecast APIs for current conditions.
+- `getLocalTime` – WorldTime API to resolve human-friendly locations into timezones.
+- `getRandomFact` – Uses the Useless Facts API with curated fallbacks.
+- `getNasaAPOD` – NASA Astronomy Picture of the Day with image + explanation rendering.
+- `getStockData` – Yahoo Finance chart API with interval support and formatted change metrics.
+- `getCountryInfo` – REST Countries v3 API for demographics, currencies, languages, and flags.
 
-- 💬 Interactive chat interface with AI
-- 🛠️ Built-in tool system with human-in-the-loop confirmation
-- 📅 Advanced task scheduling (one-time, delayed, and recurring via cron)
-- 🌓 Dark/Light theme support
-- ⚡️ Real-time streaming responses
-- 🔄 State management and chat history
-- 🎨 Modern, responsive UI
+Adding new tools is as simple as defining another `tool({ inputSchema, execute })` export and (optionally) tweaking the keyword heuristic in `src/server.ts`.
 
-## Prerequisites
+## Frontend Experience
+- Built with React 19, Tailwind CSS, and the `agents/react` hooks for streaming updates.
+- Presents landing suggestions, quick prompts, and per-message actions (copy, regenerate, delete history).
+- Tool invocations render inside `ToolInvocationCard` components so the user sees rich responses (markdown, images, lists).
+- Debug toggles expose raw message payloads without leaving the UI, which is helpful when tuning tools or heuristics.
 
-- Cloudflare account
-- OpenAI API key
+## Getting Started
+### Prerequisites
+- Node.js 20+ and npm.
+- A Cloudflare account with Workers, Durable Objects, and Workers AI enabled.
+- `wrangler` CLI (`npm install -g wrangler`) authenticated via `wrangler login`.
+- (Optional) An OpenAI API key if you plan to swap models during experimentation; place it in `.dev.vars` as `OPENAI_API_KEY`.
 
-## Quick Start
+### Configure Cloudflare Bindings
+`wrangler.jsonc` already declares the `AI` binding and the `Chat` Durable Object migration. Make sure Workers AI is enabled on your account so the binding resolves to Cloudflare's hosted models when you run or deploy.
 
-1. Create a new project:
-
-```bash
-npx create-cloudflare@latest --template cloudflare/agents-starter
-```
-
-2. Install dependencies:
-
+### Install & Run Locally
 ```bash
 npm install
-```
-
-3. Set up your environment:
-
-Create a `.dev.vars` file:
-
-```env
-OPENAI_API_KEY=your_openai_api_key
-```
-
-4. Run locally:
-
-```bash
+# create .dev.vars if you need local secrets
 npm start
 ```
+`npm start` launches the Vite dev server with the Cloudflare plugin, so your browser hits the Worker + Durable Object through Wrangler while serving the React app with HMR (default at `http://localhost:5173`).
 
-5. Deploy:
+To exercise the Worker without the frontend you can also run:
+```bash
+wrangler dev
+```
+which serves the Worker on `http://127.0.0.1:8787`.
 
+### Deploy to Cloudflare
 ```bash
 npm run deploy
 ```
+This builds the React app, uploads the assets, and publishes the Worker + Durable Object to your Cloudflare account in one step.
 
-## Project Structure
+## Customizing the Agent
+- **Change models**: swap the call to `createWorkersAI().chat(...)` in `src/server.ts` or wire in a different provider (e.g., OpenAI) by toggling bindings and updating the `model` reference.
+- **Tune tool usage**: adjust the regex in `shouldEnableTools` inside `src/server.ts` or add richer intent detection.
+- **Add rich UI**: extend components under `src/components/` or update `src/app.tsx` to surface new controls, tool confirmations, or layout tweaks.
+- **Integrate MCP servers**: uncomment the `this.mcp.connect(...)` section in `Chat.onChatMessage` and point it at your Model Context Protocol endpoint to stream additional tools into the same agent.
 
-```
-├── src/
-│   ├── app.tsx        # Chat UI implementation
-│   ├── server.ts      # Chat agent logic
-│   ├── tools.ts       # Tool definitions
-│   ├── utils.ts       # Helper functions
-│   └── styles.css     # UI styling
-```
-
-## Customization Guide
-
-### Adding New Tools
-
-Add new tools in `tools.ts` using the tool builder:
-
-```ts
-// Example of a tool that requires confirmation
-const searchDatabase = tool({
-  description: "Search the database for user records",
-  parameters: z.object({
-    query: z.string(),
-    limit: z.number().optional()
-  })
-  // No execute function = requires confirmation
-});
-
-// Example of an auto-executing tool
-const getCurrentTime = tool({
-  description: "Get current server time",
-  parameters: z.object({}),
-  execute: async () => new Date().toISOString()
-});
-
-// Scheduling tool implementation
-const scheduleTask = tool({
-  description:
-    "schedule a task to be executed at a later time. 'when' can be a date, a delay in seconds, or a cron pattern.",
-  parameters: z.object({
-    type: z.enum(["scheduled", "delayed", "cron"]),
-    when: z.union([z.number(), z.string()]),
-    payload: z.string()
-  }),
-  execute: async ({ type, when, payload }) => {
-    // ... see the implementation in tools.ts
-  }
-});
+## Testing & Linting
+```bash
+npm test      # run Vitest
+npm run check # formatting, Biome lint, and type-checking
 ```
 
-To handle tool confirmations, add execution functions to the `executions` object:
-
-```typescript
-export const executions = {
-  searchDatabase: async ({
-    query,
-    limit
-  }: {
-    query: string;
-    limit?: number;
-  }) => {
-    // Implementation for when the tool is confirmed
-    const results = await db.search(query, limit);
-    return results;
-  }
-  // Add more execution handlers for other tools that require confirmation
-};
-```
-
-Tools can be configured in two ways:
-
-1. With an `execute` function for automatic execution
-2. Without an `execute` function, requiring confirmation and using the `executions` object to handle the confirmed action. NOTE: The keys in `executions` should match `toolsRequiringConfirmation` in `app.tsx`.
-
-### Use a different AI model provider
-
-The starting [`server.ts`](https://github.com/cloudflare/agents-starter/blob/main/src/server.ts) implementation uses the [`ai-sdk`](https://sdk.vercel.ai/docs/introduction) and the [OpenAI provider](https://sdk.vercel.ai/providers/ai-sdk-providers/openai), but you can use any AI model provider by:
-
-1. Installing an alternative AI provider for the `ai-sdk`, such as the [`workers-ai-provider`](https://sdk.vercel.ai/providers/community-providers/cloudflare-workers-ai) or [`anthropic`](https://sdk.vercel.ai/providers/ai-sdk-providers/anthropic) provider:
-2. Replacing the AI SDK with the [OpenAI SDK](https://github.com/openai/openai-node)
-3. Using the Cloudflare [Workers AI + AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/workersai/#workers-binding) binding API directly
-
-For example, to use the [`workers-ai-provider`](https://sdk.vercel.ai/providers/community-providers/cloudflare-workers-ai), install the package:
-
-```sh
-npm install workers-ai-provider
-```
-
-Add an `ai` binding to `wrangler.jsonc`:
-
-```jsonc
-// rest of file
-  "ai": {
-    "binding": "AI"
-  }
-// rest of file
-```
-
-Replace the `@ai-sdk/openai` import and usage with the `workers-ai-provider`:
-
-```diff
-// server.ts
-// Change the imports
-- import { openai } from "@ai-sdk/openai";
-+ import { createWorkersAI } from 'workers-ai-provider';
-
-// Create a Workers AI instance
-+ const workersai = createWorkersAI({ binding: env.AI });
-
-// Use it when calling the streamText method (or other methods)
-// from the ai-sdk
-- const model = openai("gpt-4o-2024-11-20");
-+ const model = workersai("@cf/deepseek-ai/deepseek-r1-distill-qwen-32b")
-```
-
-Commit your changes and then run the `agents-starter` as per the rest of this README.
-
-### Modifying the UI
-
-The chat interface is built with React and can be customized in `app.tsx`:
-
-- Modify the theme colors in `styles.css`
-- Add new UI components in the chat container
-- Customize message rendering and tool confirmation dialogs
-- Add new controls to the header
-
-### Example Use Cases
-
-1. **Customer Support Agent**
-   - Add tools for:
-     - Ticket creation/lookup
-     - Order status checking
-     - Product recommendations
-     - FAQ database search
-
-2. **Development Assistant**
-   - Integrate tools for:
-     - Code linting
-     - Git operations
-     - Documentation search
-     - Dependency checking
-
-3. **Data Analysis Assistant**
-   - Build tools for:
-     - Database querying
-     - Data visualization
-     - Statistical analysis
-     - Report generation
-
-4. **Personal Productivity Assistant**
-   - Implement tools for:
-     - Task scheduling with flexible timing options
-     - One-time, delayed, and recurring task management
-     - Task tracking with reminders
-     - Email drafting
-     - Note taking
-
-5. **Scheduling Assistant**
-   - Build tools for:
-     - One-time event scheduling using specific dates
-     - Delayed task execution (e.g., "remind me in 30 minutes")
-     - Recurring tasks using cron patterns
-     - Task payload management
-     - Flexible scheduling patterns
-
-Each use case can be implemented by:
-
-1. Adding relevant tools in `tools.ts`
-2. Customizing the UI for specific interactions
-3. Extending the agent's capabilities in `server.ts`
-4. Adding any necessary external API integrations
-
-## Learn More
-
-- [`agents`](https://github.com/cloudflare/agents/blob/main/packages/agents/README.md)
-- [Cloudflare Agents Documentation](https://developers.cloudflare.com/agents/)
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-
-## License
-
-MIT
+## Further Reading
+- [Cloudflare Agents docs](https://developers.cloudflare.com/agents/)
+- [Workers AI docs](https://developers.cloudflare.com/workers-ai/)
+- [Wrangler CLI reference](https://developers.cloudflare.com/workers/wrangler/)
+- [Cloudflare Durable Objects](https://developers.cloudflare.com/workers/runtime-apis/durable-objects/)
