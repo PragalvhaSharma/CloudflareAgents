@@ -4,6 +4,7 @@ import { Robot, CaretDown } from "@phosphor-icons/react";
 import { Button } from "@/components/button/Button";
 import { Card } from "@/components/card/Card";
 import { APPROVAL } from "@/shared";
+import { MemoizedMarkdown } from "@/components/memoized-markdown";
 
 interface ToolResultWithContent {
   content: Array<{ type: string; text: string }>;
@@ -44,7 +45,7 @@ export function ToolInvocationCard({
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <Card className="p-4 my-3 w-full max-w-[500px] rounded-md bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
+    <Card className="p-4 my-3 w-full max-w-[700px] rounded-md bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -68,17 +69,17 @@ export function ToolInvocationCard({
       </button>
 
       <div
-        className={`transition-all duration-200 ${isExpanded ? "max-h-[200px] opacity-100 mt-3" : "max-h-0 opacity-0 overflow-hidden"}`}
+        className={`transition-all duration-200 ${isExpanded ? "max-h-[600px] opacity-100 mt-3" : "max-h-0 opacity-0 overflow-hidden"}`}
       >
         <div
           className="overflow-y-auto"
-          style={{ maxHeight: isExpanded ? "180px" : "0px" }}
+          style={{ maxHeight: isExpanded ? "580px" : "0px" }}
         >
           <div className="mb-3">
             <h5 className="text-xs font-medium mb-1 text-muted-foreground">
               Arguments:
             </h5>
-            <pre className="bg-background/80 p-2 rounded-md text-xs overflow-auto whitespace-pre-wrap break-words max-w-[450px]">
+            <pre className="bg-background/80 p-2 rounded-md text-xs overflow-auto whitespace-pre-wrap break-words max-w-[650px]">
               {JSON.stringify(toolUIPart.input, null, 2)}
             </pre>
           </div>
@@ -107,11 +108,13 @@ export function ToolInvocationCard({
               <h5 className="text-xs font-medium mb-1 text-muted-foreground">
                 Result:
               </h5>
-              <pre className="bg-background/80 p-2 rounded-md text-xs overflow-auto whitespace-pre-wrap break-words max-w-[450px]">
+              <div className="bg-background/80 p-2 rounded-md text-xs overflow-auto max-w-[650px]">
                 {(() => {
                   const result = toolUIPart.output;
+                  let content: string;
+                  
                   if (isToolResultWithContent(result)) {
-                    return result.content
+                    content = result.content
                       .map((item: { type: string; text: string }) => {
                         if (
                           item.type === "text" &&
@@ -127,10 +130,15 @@ export function ToolInvocationCard({
                         return item.text;
                       })
                       .join("\n");
+                  } else if (typeof result === "string") {
+                    content = result;
+                  } else {
+                    content = `\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
                   }
-                  return JSON.stringify(result, null, 2);
+                  
+                  return <MemoizedMarkdown id={`tool-result-${toolCallId}`} content={content} />;
                 })()}
-              </pre>
+              </div>
             </div>
           )}
         </div>

@@ -1,10 +1,7 @@
-import { routeAgentRequest, type Schedule } from "agents";
-
-import { getSchedulePrompt } from "agents/schedule";
+import { routeAgentRequest } from "agents";
 
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
-  generateId,
   streamText,
   type StreamTextOnFinishCallback,
   stepCountIs,
@@ -70,31 +67,41 @@ export class Chat extends AIChatAgent<Env> {
           .reverse()
           .find((m) => m.role === "user")?.parts?.find((p: any) => p.type === "text") as any;
         const lastText = (lastUserText?.text as string) || "";
-        const shouldEnableTools = /\b(schedule|remind|weather|time|alarm|task)\b/i.test(lastText);
+        const shouldEnableTools = /\b(weather|time|fact|color|palette|temperature|humidity|nasa|space|astronomy|picture|apod|stock|share|market|price|ticker|country|countries|population|currency|flag|nation|chart|graph|plot|visualize|bar|line|pie|data|about|info|information|tell me)\b/i.test(lastText);
 
         const result = streamText({
           system: `You are a concise, friendly assistant running on Cloudflare Workers.
+
 General behavior:
 - Never respond with generic refusals like "Your input is not sufficient" or claims about unavailable tools.
 - Tools are optional. If a task can be answered directly, answer it directly. Only call tools when necessary.
 - If the input is brief or ambiguous, provide a short helpful response and ask ONE clarifying question.
 - Prefer practical steps, examples, and next actions. Keep responses compact.
+- ALWAYS use tools when users ask for specific data that requires real-time information.
+
+Available Tools:
+- Weather information: Get current weather for any city worldwide
+- Local time: Get current time for any location or timezone
+- Random facts: Get interesting facts about science, history, nature, etc.
+- Color palettes: Generate beautiful color schemes for design projects
+- NASA APOD: Get NASA's daily astronomy picture with scientific explanations (use for space/astronomy queries)
+- Stock data: Get real-time stock market data for any publicly traded company (use for stock/market queries)
+- Country info: Get detailed information about any country including population, currency, flags, and more (ALWAYS use when asked about a specific country)
+- Chart generator: Create visual charts (bar, line, pie, etc.) from data (ALWAYS use when asked to create/generate a chart)
 
 Examples:
-User: "hey" → Assistant: "Hey! What would you like help with today? (e.g., draft an email, summarize a note)"
-User: "write an essay about living in the digital age" → Assistant: "Sure—here’s a concise essay:" then write it.
-
-${getSchedulePrompt({ date: new Date() })}
-
-If the user asks to schedule a task, use the schedule tool to schedule the task.
+User: "hey" → Assistant: "Hey! What would you like help with today?"
+User: "what's the weather in Paris?" → Use the weather tool to get current conditions.
+User: "tell me about Japan" → Use the country info tool to get detailed data about Japan.
+User: "create a bar chart with labels A,B,C and values 10,20,30" → Use the chart generator tool.
+User: "show me today's space picture" → Use the NASA APOD tool.
+User: "what's Apple's stock price?" → Use the stock data tool.
 `,
 
           messages: convertToModelMessages(processedMessages),
           model: workersAIModel(this.env as Env),
           tools: shouldEnableTools ? allTools : undefined,
           toolChoice: shouldEnableTools ? "auto" : "none",
-          // Avoid runaway tool loops if enabled
-          maxToolRoundtrips: shouldEnableTools ? 2 : 0,
           // Type boundary: streamText expects specific tool types, but base class uses ToolSet
           // This is safe because our tools satisfy ToolSet interface (verified by 'satisfies' in tools.ts)
           onFinish: onFinish as unknown as StreamTextOnFinishCallback<
@@ -108,24 +115,6 @@ If the user asks to schedule a task, use the schedule tool to schedule the task.
     });
 
     return createUIMessageStreamResponse({ stream });
-  }
-  async executeTask(description: string, _task: Schedule<string>) {
-    await this.saveMessages([
-      ...this.messages,
-      {
-        id: generateId(),
-        role: "user",
-        parts: [
-          {
-            type: "text",
-            text: `Running scheduled task: ${description}`
-          }
-        ],
-        metadata: {
-          createdAt: new Date()
-        }
-      }
-    ]);
   }
 }
 

@@ -32,7 +32,7 @@ import {
 // List of tools that require human confirmation
 // NOTE: this should match the tools that don't have execute functions in tools.ts
 const toolsRequiringConfirmation: (keyof typeof tools)[] = [
-  "getWeatherInformation"
+  // All tools now have execute functions, so no confirmations needed
 ];
 
 export default function Chat() {
@@ -185,18 +185,20 @@ export default function Chat() {
   // Landing screen: show when there are no messages yet
   if (agentMessages.length === 0) {
     const categories = [
-      "Weather information for any city",
-      "Local time in different locations",
-      "Creative writing assistance",
-      "Code explanations and debugging",
-      "Language translations",
-      "Recipe suggestions and cooking tips"
+      "🌤️ Weather information for any city worldwide",
+      "🕐 Local time in different locations & timezones",
+      "💡 Random interesting facts about science & nature",
+      "🎨 Beautiful color palettes for design projects",
+      "✍️ Creative writing assistance",
+      "💻 Code explanations and debugging"
     ];
     const quickPrompts = [
-      "Summarize this text",
-      "Draft a polite email",
-      "Plan a 3-day NYC trip",
-      "Give me 3 dinner ideas"
+      "What's the weather in Tokyo?",
+      "Tell me an interesting fact",
+      "Generate a warm color palette",
+      "What time is it in London?",
+      "Give me 3 dinner ideas",
+      "Write a short poem about AI"
     ];
 
     return (
@@ -396,21 +398,28 @@ export default function Chat() {
                   </div>
                   <h3 className="font-semibold text-lg">Welcome to AI Chat</h3>
                   <p className="text-muted-foreground text-sm">
-                    Start a conversation with your AI assistant. Try asking
-                    about:
+                    Start a conversation with your AI assistant. I can help with:
                   </p>
                   <ul className="text-sm text-left space-y-2">
                     <li className="flex items-center gap-2">
-                      <span className="text-[#F48120]">•</span>
+                      <span className="text-[#F48120]">🌤️</span>
                       <span>Weather information for any city</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-[#F48120]">•</span>
+                      <span className="text-[#F48120]">🕐</span>
                       <span>Local time in different locations</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#F48120]">💡</span>
+                      <span>Interesting facts about science & nature</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#F48120]">🎨</span>
+                      <span>Color palettes for design projects</span>
                     </li>
                   </ul>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {["Summarize this text","Draft a polite email","Plan a 3-day NYC trip","Give me 3 dinner ideas"].map((s) => (
+                    {["What's the weather in Paris?","Tell me a fun fact","Generate a color palette","What time is it in Tokyo?"].map((s) => (
                       <button
                         key={s}
                         onClick={(e) => {
