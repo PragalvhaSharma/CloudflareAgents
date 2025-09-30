@@ -46,6 +46,11 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  const handleScrollToBottomClick = useCallback(() => {
+    setShowScrollToBottom(false);
+    scrollToBottom();
+  }, [scrollToBottom]);
+
   const checkIfNearBottom = useCallback(() => {
     const el = messagesContainerRef.current;
     if (!el) return true;
@@ -564,8 +569,8 @@ export default function Chat() {
 
         {showScrollToBottom && (
           <button
-            onClick={scrollToBottom}
-            className="fixed bottom-28 right-6 z-20 inline-flex items-center gap-1 rounded-full border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 px-3 py-1 text-sm shadow hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60"
+            onClick={handleScrollToBottomClick}
+            className="fixed bottom-28 right-6 z-20 inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1 text-sm text-neutral-200 shadow hover:bg-neutral-800/60"
             aria-label="Scroll to bottom"
           >
             <ArrowDown size={14} />

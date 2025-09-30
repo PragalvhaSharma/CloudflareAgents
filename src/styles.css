@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+/* Custom Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.269 0 0) oklch(0.145 0 0);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: oklch(0.145 0 0); /* neutral-950 */
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: oklch(0.269 0 0); /* neutral-800 */
+  border-radius: 4px;
+  border: 2px solid oklch(0.145 0 0); /* neutral-950 */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.371 0 0); /* neutral-700 */
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: oklch(0.439 0 0); /* neutral-600 */
+}
+
 /* Markdown Styling (Tailwind @apply) */
 .markdown-body {
   @apply break-words;
